@@ -2,11 +2,11 @@
 
 This project implements a basic 2D interactive web map using **MapLibre GL JS** to visualize custom oceanographic data from a local MBTiles file.
 
-## 🚀 Project Overview
+## Project Overview
 
 The goal of this phase was to set up the core MapLibre framework and successfully serve and display custom vector tiles (`.pbf` format) contained within a local MBTiles file (`map.mbtiles`).
 
-## 🛠️ Prerequisites
+## Prerequisites
 
 Before starting the server and viewing the map, ensure you have the following software installed:
 
@@ -17,7 +17,7 @@ Before starting the server and viewing the map, ensure you have the following so
     ```
 3.  **Python:** (Optional) Used to run a simple HTTP server for the `index.html` and `style.json` files.
 
-## 📂 Project Structure
+## Project Structure
 
 Your project directory should contain:
 maplive/
@@ -26,7 +26,7 @@ maplive/
  └── maps/ 
    └── map.mbtiles # Your custom vector tile file (contains the data)
 
-## ⚙️ Step-by-Step Setup and Execution
+## Step-by-Step Setup and Execution
 
 To view the map, you must run **two separate local servers**: one to serve the tiles and one to serve the HTML/JSON files.
 
