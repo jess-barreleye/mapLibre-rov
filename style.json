@@ -1,0 +1,43 @@
+{
+    "version": 8, // CHANGED: Reverting to v8 is best practice for MapLibre GL JS
+    "name": "Schmidt Ocean Custom MBTiles Map",
+    
+    // 1. DEFINE SOURCES (This is correctly set to "raster")
+    "sources": {
+        "schmidt-data-source": {
+            "type": "raster", 
+            "tiles": ["http://localhost:8080/data/map/{z}/{x}/{y}.png"],
+            "tileSize": 256, // ADDED: Required for raster type
+            "minzoom": 12, 
+            "maxzoom": 15 
+        }
+    },
+    
+    // 2. DEFINE LAYERS
+    "layers": [
+        {
+            "id": "ocean-background",
+            "type": "background",
+            "paint": {
+                "background-color": "#001122" 
+            }
+        },
+        {
+            "id": "mbtiles-layer-drawing",
+            
+            // CRITICAL CHANGE 1: Must be 'raster' for PNG tiles
+            "type": "raster", 
+            
+            "source": "schmidt-data-source", 
+            
+            // 🔥 CRITICAL CHANGE 2: Delete 'source-layer' entirely.
+            // Raster layers do not have a source-layer property.
+
+            "paint": {
+                // Appropriate paint properties for a raster layer
+                "raster-opacity": 1.0,
+                "raster-fade-duration": 0
+            }
+        }
+    ]
+}

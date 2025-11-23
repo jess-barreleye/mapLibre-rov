@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Schmidt Ocean 2D Map</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href='https://unpkg.com/maplibre-gl@4.0.0/dist/maplibre-gl.css' rel='stylesheet' />
+    
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { 
+            position: absolute; 
+            top: 0; 
+            bottom: 0; 
+            width: 100%; 
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <script src='https://unpkg.com/maplibre-gl@4.0.0/dist/maplibre-gl.js'></script>
+
+    <script>
+        // Coordinates for the Southern Ocean data
+        const INITIAL_CENTER = [-61.9, -53.76]; 
+        // Zoom level matching the center of your MBTiles data
+        const INITIAL_ZOOM = 13; 
+        const MAX_ZOOM = 18; // Set a high max zoom for deep dives
+
+        // 5. Initialize the MapLibre Map Object
+        var map = new maplibregl.Map({
+            // The container ID must match the div ID above
+            container: 'map', 
+            
+            // 🔥 CRITICAL FIX: Pointing to your local style.json
+            style: './style.json', 
+            
+            // Initial camera position
+            center: INITIAL_CENTER, 
+            zoom: INITIAL_ZOOM,
+            maxZoom: MAX_ZOOM
+        });
+
+        // Optional: Add navigation controls (zoom in/out, compass)
+        map.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+        // Confirmation log when the map and all its sources/layers are loaded
+        map.on('load', () => {
+            console.log("Custom map and layers loaded successfully. Data should be visible.");
+        });
+
+    </script>
+</body>
+</html>
