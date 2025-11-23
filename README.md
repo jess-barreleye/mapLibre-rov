@@ -66,8 +66,9 @@ Open a second terminal window.
 Navigate to your main project directory (project4upload/).
 
 Run the Python HTTP server:
-
+ ```bash
 python -m http.server 8000
+ ```
 
 Step 5: View the Map
 Open your web browser.
