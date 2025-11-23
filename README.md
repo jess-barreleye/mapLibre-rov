@@ -20,7 +20,7 @@ Before starting the server and viewing the map, ensure you have the following so
 ## Project Structure
 
 Your project directory should contain:
-maplive/
+mapLibre-rov/
  ├── index.html # The main HTML file (MapLibre setup) 
  ├── style.json # The MapLibre style definition (references the tiles) 
  └── maps/ 
