@@ -1,0 +1,14 @@
+{
+  "options": {
+    "port": 8080,
+    "host": "0.0.0.0"
+  },
+  "data": {
+    "map": {
+      "mbtiles": "/data/mbtiles/map.mbtiles"
+    },
+    "area_100m_contour": {
+      "mbtiles": "/data/mbtiles/area_100m_contour.mbtiles"
+    }
+  }
+}

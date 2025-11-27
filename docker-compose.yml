@@ -1,0 +1,16 @@
+services:
+  tileserver:
+    build: .
+    container_name: maplibre-tileserver
+    ports:
+      - "8080:8080"
+    # Mount local maps directory into the container under /data/mbtiles
+    # so we do not override the container's /data directory. New .mbtiles
+    # files can be added to ./maps and will be visible at /data/mbtiles.
+    # Also mount the explicit config.json into /data/config.json.
+    volumes:
+      - ./maps:/data/mbtiles:ro
+      - ./tileserver-config.json:/data/config.json:ro
+    environment:
+      - TILESERVER_GL_LOG_LEVEL=info
+    restart: unless-stopped

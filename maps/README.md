@@ -18,7 +18,7 @@ For the Resampling method, choose Cubic B-Spline. This usually provides the smoo
 Save the output. It's best to save it to a permanent file, as you will likely need this reprojected layer again.
 
 ## 2. Exporting the Reprojected Map as Web Tiles
-Once your map scene is set up with the reprojected layer, you can export it into a tile set that a web server can use.
+Once your map scene is set up with the reprojected layer, you can export it into a tile set that a web server can use. It will export all layers that are activated.
 
 ### Steps in QGIS:
 Open the Processing Toolbox by going to View → Panels → Processing Toolbox.
@@ -36,7 +36,7 @@ Extent: This defines the geographic area to be exported. It's often most reliabl
 
 Zoom Levels:
 
-Minimum zoom: Determines the largest area covered by a single image (tile). 0 represents the entire Earth. Be mindful that if the minimum zoom covers a much larger area than your selected Extent, you might see odd behavior when zooming out.
+Minimum zoom: Determines the largest area covered by a single image (tile). 0 represents the entire Earth. Be mindful that if the minimum zoom covers a much larger area than your selected Extent, you might see odd behavior when zooming out. Choose 6(?) or smaller, if you choose a minimum zoom much larger, it won't show up as an overlay on the map at lower zoom levels.
 
 Maximum zoom: Determines the smallest coverage tiles to export, which corresponds to the highest level of detail when zoomed in. Higher maximum zoom results in more detail but will significantly increase export time and file size.
 

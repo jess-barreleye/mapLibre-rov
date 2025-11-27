@@ -15,11 +15,78 @@
             bottom: 0; 
             width: 100%; 
         }
+        /* Controls panel */
+        #controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255,255,255,0.9);
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+            font-size: 13px;
+            z-index: 2;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+        #controls label { display: block; margin-bottom: 6px; }
+        #mbtiles-opacity { width: 160px; vertical-align: middle; }
+        /* Layers panel (left) */
+        #layers-panel {
+            position: absolute;
+            top: 70px;
+            left: 10px;
+            background: rgba(255,255,255,0.95);
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+            font-size: 13px;
+            z-index: 3;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.15);
+            max-height: 60vh;
+            overflow: auto;
+            width: 260px;
+        }
+        #layers-panel h4 { margin: 0 0 8px 0; font-size: 14px; }
+        .layer-entry { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px }
+        .layer-entry .left { display:flex; align-items:center; gap:8px }
+        .layer-entry .opacity { width: 90px }
+        .swatch { width: 12px; height: 12px; border-radius: 3px; display:inline-block; margin-right:6px; border:1px solid rgba(0,0,0,0.1) }
+        #layers-legend { margin-top: 8px; border-top: 1px solid rgba(0,0,0,0.06); padding-top: 8px }
+        #legend-list .legend-item { display:flex; align-items:center; gap:8px; margin-bottom:6px; cursor:pointer }
+        #legend-list .legend-item .name { flex:1 }
+        /* Bottom-left legend container */
+        #legend-container {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(255,255,255,0.95);
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+            font-size: 13px;
+            z-index: 4;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.15);
+            max-height: 30vh;
+            overflow: auto;
+            width: 220px;
+        }
     </style>
 </head>
 
 <body>
+    <div id="layers-panel">
+        <h4>MBTiles Maps</h4>
+        <div id="mbtiles-list">Loading maps...</div>
+        <h4 style="margin-top: 12px;">Data Layers</h4>
+        <div id="layers-list">Loading layers...</div>
+    </div>
+
     <div id="map"></div>
+
+    <div id="legend-container">
+        <h4 style="margin:0 0 6px 0">Legend</h4>
+        <div id="legend-list">(toggle layers to populate legend)</div>
+    </div>
 
     <script src='https://unpkg.com/maplibre-gl@4.0.0/dist/maplibre-gl.js'></script>
 
@@ -50,6 +117,399 @@
         // Confirmation log when the map and all its sources/layers are loaded
         map.on('load', () => {
             console.log("Custom map and layers loaded successfully. Data should be visible.");
+            
+            // Dynamically discover and load all .mbtiles from the tile server
+            (async () => {
+                try {
+                    const capabilitiesUrl = 'http://localhost:8080/data.json';
+                    const capResponse = await fetch(capabilitiesUrl);
+                    
+                    if (capResponse.ok) {
+                        const capabilities = await capResponse.json();
+                        const datasets = Array.isArray(capabilities) ? capabilities : (capabilities.data && Array.isArray(capabilities.data) ? capabilities.data : []);
+                        
+                        const mbtilesList = document.getElementById('mbtiles-list');
+                        if (datasets.length === 0) {
+                            mbtilesList.innerText = 'No MBTiles found';
+                            return;
+                        }
+                        
+                        mbtilesList.innerHTML = '';
+                        let firstBounds = null;
+                        
+                        datasets.forEach((dataset, idx) => {
+                            const sourceId = `mbtiles-${idx}`;
+                            const layerId = `mbtiles-layer-${idx}`;
+                            const name = dataset.name || dataset.id || `Map ${idx}`;
+                            
+                            const srcMinZoom = Number.isFinite(dataset.minzoom) ? dataset.minzoom : 0;
+                            const srcMaxZoom = Number.isFinite(dataset.maxzoom) ? dataset.maxzoom : 22;
+
+                            // Add source
+                            map.addSource(sourceId, {
+                                type: 'raster',
+                                tiles: [`http://localhost:8080/data/${dataset.id}/{z}/{x}/{y}.png`],
+                                tileSize: 256,
+                                minzoom: srcMinZoom,
+                                maxzoom: srcMaxZoom
+                            });
+
+                            // Add layer (above basemap, but below data layers from /layers/)
+                            map.addLayer({
+                                id: layerId,
+                                type: 'raster',
+                                source: sourceId,
+                                minzoom: srcMinZoom,
+                                maxzoom: srcMaxZoom,
+                                paint: {
+                                    'raster-opacity': 0.8,
+                                    'raster-fade-duration': 0
+                                }
+                            });
+                            
+                            // Create UI controls for this MBTiles layer
+                            const entry = document.createElement('div');
+                            entry.className = 'layer-entry';
+                            entry.innerHTML = `
+                                <div class="left">
+                                    <input type="checkbox" id="mbt-chk-${idx}" checked>
+                                    <label for="mbt-chk-${idx}">${name}</label>
+                                </div>
+                                <input class="opacity" id="mbt-op-${idx}" type="range" min="0" max="1" step="0.01" value="0.8">
+                            `;
+                            mbtilesList.appendChild(entry);
+
+                            const checkbox = entry.querySelector(`#mbt-chk-${idx}`);
+                            const slider = entry.querySelector(`#mbt-op-${idx}`);
+
+                            checkbox.addEventListener('change', () => {
+                                const vis = checkbox.checked ? 'visible' : 'none';
+                                if (map.getLayer(layerId)) {
+                                    map.setLayoutProperty(layerId, 'visibility', vis);
+                                }
+                            });
+
+                            slider.addEventListener('input', () => {
+                                const v = parseFloat(slider.value);
+                                if (map.getLayer(layerId)) {
+                                    map.setPaintProperty(layerId, 'raster-opacity', v);
+                                }
+                            });
+                            
+                            if (!firstBounds && dataset.bounds) {
+                                firstBounds = dataset.bounds;
+                            }
+                            
+                            console.log(`Loaded tileset: ${name}`);
+                        });
+                        
+                        // Auto-fit to first dataset's bounds
+                        if (firstBounds) {
+                            const [minLon, minLat, maxLon, maxLat] = firstBounds;
+                            map.fitBounds([[minLon, minLat], [maxLon, maxLat]], { padding: 50 });
+                        }
+                    }
+                } catch (err) {
+                    console.warn('Could not fetch tile server capabilities:', err);
+                    document.getElementById('mbtiles-list').innerText = 'Error loading maps';
+                }
+            })();
+            // --- Layers folder integration ---
+            const layersList = document.getElementById('layers-list');
+
+            // bookkeeping for loaded layers and a color palette
+            const mapFiles = {};
+            const palette = ['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#a65628','#f781bf','#999999'];
+            let paletteIndex = 0;
+
+            // Utility to make a safe id from a filename
+            const safeId = (name) => name.replace(/[^a-z0-9_-]+/ig, '-').toLowerCase();
+
+            function updateLegend() {
+                const legendList = document.getElementById('legend-list');
+                legendList.innerHTML = '';
+                Object.keys(mapFiles).forEach(k => {
+                    const m = mapFiles[k];
+                    if (!m.checkbox.checked) return;
+                    const item = document.createElement('div');
+                    item.className = 'legend-item';
+                    item.innerHTML = `<span class="swatch" style="background:${m.color}"></span><div class="name">${m.name}</div>`;
+                    item.addEventListener('click', ()=>{
+                        // If the layer has explicit bounds (from tileset metadata), use them
+                        if (m.bounds && m.bounds.length === 4) {
+                            const [minLon, minLat, maxLon, maxLat] = m.bounds;
+                            map.fitBounds([[minLon, minLat], [maxLon, maxLat]], { padding: 20 });
+                            return;
+                        }
+                        // Otherwise try to zoom to geo features (points)
+                        const geo = m.geo;
+                        if (!geo || !geo.features || geo.features.length===0) return;
+                        let minX=180, minY=90, maxX=-180, maxY=-90;
+                        geo.features.forEach(f => {
+                            const c = f.geometry.coordinates;
+                            if (c[0]<minX) minX=c[0]; if (c[0]>maxX) maxX=c[0];
+                            if (c[1]<minY) minY=c[1]; if (c[1]>maxY) maxY=c[1];
+                        });
+                        if (minX===maxX && minY===maxY) {
+                            map.flyTo({ center: [minX, minY], zoom: 12 });
+                        } else {
+                            map.fitBounds([[minX,minY],[maxX,maxY]], { padding: 20 });
+                        }
+                    });
+                    legendList.appendChild(item);
+                });
+                if (legendList.children.length===0) legendList.innerText = '(toggle layers to populate legend)';
+            }
+
+            // Parse a CSV/TXT layer file into GeoJSON
+            function parseLayerText(text) {
+                const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+                if (lines.length === 0) return null;
+                // detect header
+                let start = 0;
+                const headerCols = lines[0].split(',').map(h => h.trim().toLowerCase());
+                let hasHeader = headerCols.some(h => /lat|lon|long|latitude|longitude|name|id|depth/.test(h));
+                if (!hasHeader) {
+                    // no header, assume lat,long[,depth][,name]
+                } else {
+                    start = 1;
+                }
+
+                // find lat/long column indices
+                let latIdx = -1, lonIdx = -1, nameIdx = -1, idIdx = -1, depthIdx = -1;
+                if (hasHeader) {
+                    headerCols.forEach((h,i)=>{
+                        if (/^lat|latitude/.test(h)) latIdx = i;
+                        if (/^lon|long|longitude/.test(h)) lonIdx = i;
+                        if (/^name$/.test(h)) nameIdx = i;
+                        if (/^id$/.test(h)) idIdx = i;
+                        if (/^depth/.test(h)) depthIdx = i;
+                    });
+                }
+
+                // fallback if no header or missing indices: assume first two columns are lat,long
+                const features = [];
+                for (let i = start; i < lines.length; i++) {
+                    const cols = lines[i].split(',').map(c=>c.trim());
+                    if (!hasHeader) {
+                        if (cols.length < 2) continue;
+                        latIdx = 0; lonIdx = 1;
+                        nameIdx = cols.length > 2 ? 2 : -1;
+                        depthIdx = cols.length > 3 ? 3 : -1;
+                    }
+                    const lat = parseFloat(cols[latIdx]);
+                    const lon = parseFloat(cols[lonIdx]);
+                    if (Number.isFinite(lat) && Number.isFinite(lon)) {
+                        const props = {};
+                        if (nameIdx !== -1 && cols[nameIdx]) props.name = cols[nameIdx];
+                        if (idIdx !== -1 && cols[idIdx]) props.id = cols[idIdx];
+                        if (depthIdx !== -1 && cols[depthIdx]) props.depth = cols[depthIdx];
+                        features.push({ type: 'Feature', geometry: { type: 'Point', coordinates: [lon, lat] }, properties: props });
+                    }
+                }
+                return { type: 'FeatureCollection', features };
+            }
+
+            // Parse a JSON/ASCII layer file (custom format with LineStrings or standard GeoJSON)
+            function parseGeoFile(text) {
+                try {
+                    const data = JSON.parse(text);
+                    // Check if it's a custom format with .features array containing id + coordinates
+                    if (data.features && Array.isArray(data.features)) {
+                        const features = data.features.map(f => {
+                            if (f.coordinates && Array.isArray(f.coordinates)) {
+                                // Assume it's a custom format: convert to GeoJSON LineString
+                                return {
+                                    type: 'Feature',
+                                    geometry: { type: 'LineString', coordinates: f.coordinates },
+                                    properties: { id: f.id || '' }
+                                };
+                            }
+                            return f;
+                        });
+                        return { type: 'FeatureCollection', features };
+                    }
+                    // Otherwise assume it's already valid GeoJSON
+                    return data;
+                } catch (e) {
+                    console.error('Failed to parse GeoJSON file:', e);
+                    return null;
+                }
+            }
+
+
+            // Load the /layers/ directory listing and populate controls
+            fetch('./layers/').then(r => r.text()).then(html => {
+                // parse links to .csv/.txt (point) and .json/.geojson/.ascii/.asciifile (geo) files
+                const hrefs = Array.from(html.matchAll(/href\s*=\s*"([^"]+)"/gi)).map(m=>m[1]);
+                const csvFiles = hrefs.filter(h => /\.csv$|\.txt$/i.test(h));
+                const geoFiles = hrefs.filter(h => /\.json$|\.geojson$|\.ascii$|\.asciifile$/i.test(h));
+                const files = [...csvFiles, ...geoFiles];
+                if (files.length === 0) {
+                    layersList.innerText = 'No layer files found in /layers/';
+                    return;
+                }
+                
+                layersList.innerHTML = '';
+                files.forEach(file => {
+                    const name = file.split('/').pop();
+                    const id = safeId(name);
+                    const isGeoFile = /\.json$|\.geojson$|\.ascii$|\.asciifile$/i.test(name);
+
+                    const entry = document.createElement('div');
+                    entry.className = 'layer-entry';
+                    entry.innerHTML = `
+                        <div class="left"><span class="swatch" id="sw-${id}"></span><input type="checkbox" id="chk-${id}" checked> <label for="chk-${id}">${name}</label></div>
+                        <input class="opacity" id="op-${id}" type="range" min="0" max="1" step="0.01" value="1">
+                    `;
+                    layersList.appendChild(entry);
+
+                    const checkbox = entry.querySelector(`#chk-${id}`);
+                    const slider = entry.querySelector(`#op-${id}`);
+
+                    // place a placeholder mapFiles entry so updateLegend won't error
+                    mapFiles[id] = { name, checkbox, slider, color: null, geo: null, isGeoFile };
+
+                    // fetch file and add source/layer (CSV point or GeoJSON geometry)
+                    fetch('./layers/' + name).then(r=>r.text()).then(text=>{
+                        // Parse based on file type
+                        let geo = isGeoFile ? parseGeoFile(text) : parseLayerText(text);
+                        if (!geo || geo.features.length === 0) return;
+                        
+                        const srcId = 'src-' + id;
+                        const layerId = 'lay-' + id;
+                        const labelId = 'lab-' + id;
+
+                        // choose a color for this file
+                        const color = palette[paletteIndex++ % palette.length];
+                        mapFiles[id].color = color;
+                        mapFiles[id].geo = geo;
+                        // set swatch color
+                        const sw = document.getElementById('sw-' + id);
+                        if (sw) sw.style.background = color;
+
+                        map.addSource(srcId, { type: 'geojson', data: geo });
+                        
+                        // Determine layer type based on features
+                        let layerType = 'circle'; // default
+                        if (geo.features.length > 0 && geo.features[0].geometry) {
+                            const geomType = geo.features[0].geometry.type;
+                            if (geomType === 'LineString' || geomType === 'MultiLineString') layerType = 'line';
+                            else if (geomType === 'Polygon' || geomType === 'MultiPolygon') layerType = 'fill';
+                            else layerType = 'circle';
+                        }
+
+                        // Create appropriate layer for geometry type
+                        if (layerType === 'line') {
+                            map.addLayer({
+                                id: layerId,
+                                type: 'line',
+                                source: srcId,
+                                paint: {
+                                    'line-color': color,
+                                    'line-width': 2,
+                                    'line-opacity': 1
+                                }
+                            });
+                        } else if (layerType === 'fill') {
+                            map.addLayer({
+                                id: layerId,
+                                type: 'fill',
+                                source: srcId,
+                                paint: {
+                                    'fill-color': color,
+                                    'fill-opacity': 0.5
+                                }
+                            });
+                            // Add stroke for polygons
+                            map.addLayer({
+                                id: layerId + '-stroke',
+                                type: 'line',
+                                source: srcId,
+                                paint: {
+                                    'line-color': color,
+                                    'line-width': 2
+                                }
+                            });
+                        } else {
+                            // Circle (point) layer
+                            map.addLayer({
+                                id: layerId,
+                                type: 'circle',
+                                source: srcId,
+                                paint: {
+                                    'circle-radius': 5,
+                                    'circle-color': color,
+                                    'circle-stroke-color': '#fff',
+                                    'circle-stroke-width': 1
+                                }
+                            });
+                        }
+
+                        // add optional text label layer (only for point layers, requires glyphs in style)
+                        const hasLabel = layerType === 'circle' && geo.features.some(f=>f.properties && (f.properties.name || f.properties.id));
+                        if (hasLabel) {
+                            map.addLayer({
+                                id: labelId,
+                                type: 'symbol',
+                                source: srcId,
+                                layout: {
+                                    'text-field': ['coalesce', ['get', 'name'], ['get','id']],
+                                    'text-size': 12,
+                                    'text-offset': [0, 1.2]
+                                },
+                                paint: {
+                                    'text-color': '#002233'
+                                }
+                            });
+                        }
+
+                        // popup on click for point layers
+                        if (layerType === 'circle') {
+                            map.on('click', layerId, (e) => {
+                                const props = e.features && e.features[0] && e.features[0].properties ? e.features[0].properties : {};
+                                const coord = e.features[0].geometry.coordinates.slice();
+                                const html = Object.keys(props).map(k => `<b>${k}:</b> ${props[k]}`).join('<br>');
+                                new maplibregl.Popup().setLngLat(coord).setHTML(html || name).addTo(map);
+                            });
+                            map.on('mouseenter', layerId, () => map.getCanvas().style.cursor = 'pointer');
+                            map.on('mouseleave', layerId, () => map.getCanvas().style.cursor = '');
+                        }
+
+                        // wire UI: checkbox for visibility
+                        checkbox.addEventListener('change', () => {
+                            const vis = checkbox.checked ? 'visible' : 'none';
+                            if (map.getLayer(layerId)) map.setLayoutProperty(layerId, 'visibility', vis);
+                            if (map.getLayer(labelId)) map.setLayoutProperty(labelId, 'visibility', vis);
+                            if (map.getLayer(layerId + '-stroke')) map.setLayoutProperty(layerId + '-stroke', 'visibility', vis);
+                            updateLegend();
+                        });
+                        
+                        // wire UI: slider for opacity
+                        slider.addEventListener('input', () => {
+                            const v = parseFloat(slider.value);
+                            if (map.getLayer(layerId)) {
+                                if (layerType === 'line') map.setPaintProperty(layerId, 'line-opacity', v);
+                                else if (layerType === 'fill') map.setPaintProperty(layerId, 'fill-opacity', v * 0.5);
+                                else map.setPaintProperty(layerId, 'circle-opacity', v);
+                            }
+                            if (map.getLayer(labelId)) map.setPaintProperty(labelId, 'text-opacity', v);
+                        });
+
+                        // update legend initially
+                        updateLegend();
+
+                    }).catch(err=>{
+                        console.error('Failed to load layer file', name, err);
+                    });
+
+
+                });
+            }).catch(err=>{
+                layersList.innerText = 'Could not load layers directory';
+                console.error(err);
+            });
+            // --- end layers integration ---
         });
 
     </script>

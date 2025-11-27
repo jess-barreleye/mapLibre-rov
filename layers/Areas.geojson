@@ -1,0 +1,9 @@
+{
+"type": "FeatureCollection",
+"name": "Area Features",
+"features": [
+{ "type": "Feature", "properties": { "description": "Unknown Area Type" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -55.0562889, -37.6900731 ], [ -55.5037206, -38.7018766 ], [ -53.500442, -39.0018581 ], [ -53.5004425, -37.8019303 ], [ -55.0562889, -37.6900731 ] ] ] } },
+{ "type": "Feature", "properties": { "description": "Unknown Area Type" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -55.1986533, -40.8119191 ], [ -56.5053565, -40.4661773 ], [ -59.6627944, -43.5676855 ], [ -59.6627944, -43.5676855 ], [ -59.6678788, -43.9388496 ], [ -58.1755956, -43.9960496 ], [ -55.1986533, -40.8119191 ] ] ] } },
+{ "type": "Feature", "properties": { "description": "Unknown Area Type" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -63.0057708, -53.4322065 ], [ -63.2727466, -54.0212936 ], [ -61.9202856, -54.1738268 ], [ -61.775769, -53.7595454 ], [ -62.0330309, -53.6567442 ], [ -63.0057708, -53.4322065 ] ] ] } }
+]
+}
