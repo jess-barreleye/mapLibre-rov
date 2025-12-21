@@ -1,5 +1,8 @@
 .DS_Store
 
+# Configuration files (may contain sensitive data)
+config.js
+
 # Node.js dependencies
 node_modules/
 package-lock.json
