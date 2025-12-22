@@ -1,4 +1,4 @@
-# Schmidt Ocean 2D Interactive Map Viewer
+# 2D Interactive Map Viewer
 
 An interactive web-based map viewer built with **MapLibre GL JS** for visualizing oceanographic survey data, including MBTiles raster layers, vector point data, and GeoJSON geometries.
 
@@ -141,7 +141,7 @@ python -m http.server 8000
 ### Step 5: View the Map
 Open your web browser.
 
-# Schmidt Ocean 2D Interactive Map Viewer
+# 2D Interactive Map Viewer
 
 An interactive web-based map viewer built with MapLibre GL JS for visualizing oceanographic survey data. This project features:
 
@@ -208,7 +208,7 @@ cd gps-server
 node test-gps.js
 ```
 
-You should see a red vessel marker appear on the map! 🎯
+You should see a red vessel marker appear on the map!
 
 ## How it works
 
