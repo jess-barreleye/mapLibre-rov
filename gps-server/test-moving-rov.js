@@ -5,8 +5,8 @@ const UDP_HOST = 'localhost';
 const UDP_PORT = 12346; // ROV GPS port
 
 // Starting position (slightly offset from ship)
-let lat = 48.118000; // Start a bit north of ship
-let lon = -11.517000; // Start a bit west of ship
+let lat = -53.755; // Start a bit north of ship
+let lon = -61.905; // Start a bit west of ship
 const heading = 135.0; // Southeast heading (different from ship)
 const speed = 2.0; // 2 knots (slower than ship)
 

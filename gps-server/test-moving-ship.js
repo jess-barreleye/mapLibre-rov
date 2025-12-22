@@ -4,9 +4,9 @@ const dgram = require('dgram');
 const UDP_HOST = 'localhost';
 const UDP_PORT = 12345;
 
-// Starting position (near your test location)
-let lat = 48.117300;
-let lon = -11.516667;
+// Starting position (off the coast of Argentina)
+let lat = -53.76;
+let lon = -61.9;
 const heading = 84.4; // Fixed heading
 const speed = 5.0; // 5 knots
 

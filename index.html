@@ -1005,20 +1005,31 @@
                             });
                         }
 
-                        // add optional text label layer (only for point layers, requires glyphs in style)
-                        const hasLabel = layerType === 'circle' && geo.features.some(f=>f.properties && (f.properties.name || f.properties.id));
+                        // add optional text label layer (only for point layers)
+                        const hasLabel = layerType === 'circle' && geo.features.some(f=>f.properties && 
+                            (f.properties.name || f.properties.Name || f.properties.NAME || 
+                             f.properties.id || f.properties.ID || 
+                             f.properties.wp || f.properties.WP));
                         if (hasLabel) {
                             map.addLayer({
                                 id: labelId,
                                 type: 'symbol',
                                 source: srcId,
                                 layout: {
-                                    'text-field': ['coalesce', ['get', 'name'], ['get','id']],
-                                    'text-size': 12,
-                                    'text-offset': [0, 1.2]
+                                    'text-field': ['coalesce', 
+                                        ['get', 'name'], ['get', 'Name'], ['get', 'NAME'],
+                                        ['get', 'wp'], ['get', 'WP'],
+                                        ['get', 'id'], ['get', 'ID']
+                                    ],
+                                    'text-size': 10,
+                                    'text-offset': [0, 1.2],
+                                    'text-anchor': 'top',
+                                    'text-font': ['Noto Sans Regular']
                                 },
                                 paint: {
-                                    'text-color': '#002233'
+                                    'text-color': '#002233',
+                                    'text-halo-color': '#ffffff',
+                                    'text-halo-width': 1.5
                                 }
                             });
                         }
