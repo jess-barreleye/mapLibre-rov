@@ -355,7 +355,7 @@ oceanographicWebSocket.onclose = () => {
 
 ---
 
-## 🎨 Color Scheme Summary
+## Color Scheme Summary
 
 **Viridis Palette (Yellow → Purple):**
 ```javascript
@@ -417,7 +417,7 @@ oceanographicWebSocket.onclose = () => {
 
 ---
 
-## 🚀 Performance Notes
+## Performance Notes
 
 **Optimization Implemented:**
 - Max 1000 points per sensor (configurable)
@@ -444,7 +444,7 @@ oceanographicWebSocket.onclose = () => {
 
 ---
 
-## 🔧 Maintenance Notes
+## Maintenance Notes
 
 ### To Add New Sensor:
 
@@ -487,7 +487,7 @@ right: 10px;   /* Distance from right */
 
 ---
 
-## 📞 Quick Reference
+## Quick Reference
 
 **Ports:**
 - Frontend: 8000
