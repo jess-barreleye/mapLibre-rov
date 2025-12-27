@@ -36,7 +36,7 @@ View ship and ROV positions at any specific moment in the past.
 ### Steps
 
 1. **Locate the Control:**
-   - Left sidebar → Expand "🕐 Historical Position"
+   - Left sidebar → Expand "Historical Position"
 
 2. **Select a Time:**
    - Click the "Select UTC Time" datetime picker
@@ -84,7 +84,7 @@ Display complete vessel tracks between two dates, with automatic downsampling fo
 ### Steps
 
 1. **Locate the Control:**
-   - Left sidebar → Expand "📊 Historical Tracklines"
+   - Left sidebar → Expand "Historical Tracklines"
 
 2. **Set Date Range:**
    - **Start Time:** Click picker, select start date/time (UTC)
