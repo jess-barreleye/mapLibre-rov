@@ -259,7 +259,7 @@ wssROV.on('connection', (ws) => {
 udpServerShip.bind(UDP_PORT_SHIP, UDP_HOST);
 udpServerROV.bind(UDP_PORT_ROV, UDP_HOST);
 
-console.log(`\n🌊 GPS Server Started`);
+console.log(`\nGPS Server Started`);
 console.log(`═══════════════════════════════════════`);
 console.log(`[SHIP] WebSocket: ws://localhost:${WS_PORT_SHIP}`);
 console.log(`[SHIP] UDP Listener: ${UDP_HOST}:${UDP_PORT_SHIP}`);

@@ -35,7 +35,7 @@ node server.js
 
 Expected output:
 ```
-🌊 GPS Server Started
+GPS Server Started
 ═══════════════════════════════════════
 [SHIP] WebSocket: ws://localhost:8081
 [SHIP] UDP Listener: 0.0.0.0:12345

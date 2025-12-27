@@ -108,7 +108,7 @@ setInterval(() => {
 }, 5 * 60 * 1000);
 
 console.log('');
-console.log('🌊 ADCP Server Started');
+console.log('ADCP Server Started');
 console.log('═════════════════════════════════════');
 console.log(`[ADCP] WebSocket: ws://localhost:${WS_PORT}`);
 console.log('═════════════════════════════════════');
