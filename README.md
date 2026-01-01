@@ -18,11 +18,6 @@ A real-time web-based marine data visualization platform built with **MapLibre G
 - **Interactive Legend**: Click legend items to zoom to that layer's bounds
 - **Responsive Design**: Floating panels on left and bottom-left for controls and legend
 
-
-<img width="1229" height="942" alt="Screenshot_map" src="https://github.com/user-attachments/assets/9e961c39-f9a5-4120-b69d-ca37ad8627d1" />
-
-
-
 ## Prerequisites
 
 Before running the project, install:
