@@ -45,15 +45,72 @@ Edit `config.js` to set your server URLs and ports. See [CONFIG.md](CONFIG.md) f
 ## Project Structure
 
 ```
-mapLibre-rov/
-├── index.html              # Main MapLibre viewer
-├── style.json              # MapLibre style definition (tile sources & layers)
-├── README.md               # This file
-├── layers/                 # Data layers (auto-discovered)
-│   ├── Bravo_dive-coordinates.csv    # Point layer example
-│   └── Mapping-lines.json            # LineString layer example
-└── maps/
-    └── map.mbtiles         # MBTiles raster tiles
+map-data-viewer/
+├── index.html                          # Main MapLibre viewer
+├── server.js                           # Frontend HTTP server (port 8000)
+├── style.json                          # MapLibre style definition (tile sources & layers)
+├── package.json                        # Node.js dependencies and scripts
+├── config.js                           # Local configuration (gitignored)
+├── config.example.js                   # Configuration template
+├── tileserver-config.json              # TileServer GL configuration
+├── Dockerfile                          # Docker container configuration
+├── docker-compose.yml                  # Docker multi-container setup
+├── .gitignore                          # Git ignore patterns
+├── README.md                           # Main documentation
+├── CONFIG.md                           # Configuration guide
+├── TESTING-GUIDE.md                    # Testing instructions
+├── CODE_REVIEW.md                      # Code review notes
+├── IMPLEMENTATION-SUMMARY.md           # Feature summaries
+├── OPENRVDAS_INTEGRATION.md            # OpenRVDAS setup guide
+├── ADCP_MULTI_DEPTH.md                 # ADCP depth layer documentation
+├── DATETIME_PICKER_UPDATE.md           # Time travel feature docs
+├── DESIGN-TIME-TRAVEL.md               # Time travel design notes
+├── layers/                             # Data layers (auto-discovered by frontend)
+│   ├── Bravo_dive-coordinates.csv      # Point layer example
+│   └── Mapping-lines.json              # LineString layer example
+├── maps/                               # MBTiles raster data
+│   ├── map.mbtiles                     # Primary bathymetry tiles
+│   ├── area_100m_contour.mbtiles       # Contour tiles
+│   └── README.md                       # Map data documentation
+├── vehicles/                           # Vehicle icon assets
+│   ├── ship-icon.png                   # Ship GPS marker
+│   └── rov-icon.png                    # ROV GPS marker
+├── gps-server/                         # GPS WebSocket server
+│   ├── server.js                       # UDP/NMEA GPS server (testing)
+│   ├── server-influxdb.js              # InfluxDB GPS server (production)
+│   ├── server-influxdb-simple.js       # Simplified InfluxDB GPS server
+│   ├── test-ship-live.js               # Test ship GPS from InfluxDB
+│   ├── test-seapath.js                 # Test Seapath GPS data
+│   ├── package.json                    # GPS server dependencies
+│   ├── .env.example                    # GPS server environment template
+│   └── README.md                       # GPS server documentation
+├── adcp-server/                        # ADCP current vectors WebSocket server
+│   ├── server.js                       # ADCP WebSocket server (port 8083)
+│   ├── test-live.js                    # Test ADCP from InfluxDB
+│   ├── package.json                    # ADCP server dependencies
+│   ├── .env.example                    # ADCP server environment template
+│   └── README.md                       # ADCP server documentation
+├── rov-telemetry-server/               # ROV telemetry WebSocket server
+│   ├── server.js                       # Telemetry WebSocket server (port 8084)
+│   ├── test-usbl.js                    # Test USBL position data
+│   ├── test-influx.js                  # Test InfluxDB connection
+│   ├── test-sb-mechs.js                # Test SBE mechanics data
+│   ├── package.json                    # Telemetry server dependencies
+│   ├── .env.example                    # Telemetry server environment template
+│   └── README.md                       # Telemetry server documentation
+├── multibeam-server/                   # Multibeam sonar WebSocket server
+│   ├── server.js                       # Multibeam WebSocket server (port 8085)
+│   ├── package.json                    # Multibeam server dependencies
+│   ├── .env.example                    # Multibeam server environment template
+│   └── README.md                       # Multibeam server documentation
+└── oceanographic-server/               # Oceanographic sensors WebSocket server
+    ├── server.js                       # Oceanographic WebSocket server (port 8087)
+    ├── test-sensors.js                 # Test sensor queries
+    ├── test-actual-sensors.js          # Test actual sensor data
+    ├── test-underway-sensors.js        # Test underway system sensors
+    ├── package.json                    # Oceanographic server dependencies
+    ├── .env.example                    # Oceanographic server environment template
+    └── README.md                       # Oceanographic server documentation
 ```
 
 ## Step-by-Step Setup and Execution
